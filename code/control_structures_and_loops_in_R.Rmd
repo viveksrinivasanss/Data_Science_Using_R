@@ -1,0 +1,192 @@
+---
+title: "Control Structures and Loops in R"
+author: "Vivekanandan Srinivasan"
+date: "11/29/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Simple If statements
+
+```{r}
+#	set	up	a	variable	to	hold	1
+toCheck	<- 1
+
+#	if	toCheck	is	equal	to	1,	print	hello
+if(toCheck	==	1)
+{
+  print("hello")
+}
+
+```
+
+
+## If and else construct
+
+```{r}
+#	first	create	the	function
+check.bool	<- function(x)
+{
+  if(x	==	1)
+  {
+    #	if	the	input	is	equal	to	1,	print	hello
+    print("hello")
+  }else
+  {
+    #	otherwise	print	goodbye
+    print("goodbye")
+  }
+}
+
+check.bool(0)
+
+```
+
+## Else if construct
+
+```{r}
+check.bool	<- function(x)
+{
+  if(x	==	1)
+  {
+    #	if	the	input	is	equal	to	1,	print	hello
+    print("hello")
+  }else	if(x	==	0)
+  {
+    #	if	the	input	is	equal	to	0,	print	goodbye
+    print("goodbye")
+  }else
+  {
+    #	otherwise	print	confused
+    print("confused")
+  }
+}
+
+check.bool(2)
+```
+
+## Switch Statement
+
+```{r}
+use.switch	<- function(x)
+{
+  switch(x,
+         "a"="first",
+         "b"="second",
+         "z"="last",
+         "c"="third",
+         "other")
+}
+
+use.switch("a")
+
+```
+
+```{r}
+#	nothing	is	returned
+is.null(use.switch(6))
+
+```
+
+
+## ifelse Statements
+
+```{r}
+#	see	if	1	==	1
+ifelse(1	==	1,	"Yes",	"No")
+
+#	see	if	1	==	0
+ifelse(1	==	0,	"Yes",	"No")
+
+```
+
+## ifelse on Vectors
+
+```{r}
+toTest	<- c(1,	1,	0,	1,	0,	1)
+ifelse(toTest	==	1,	"Yes",	"No")
+```
+
+
+```{r}
+toTest	<- c(1,	1,	0,	1,	0,	1)
+ifelse(toTest	==	1,	toTest*3,	toTest)
+
+## vectors with NA values
+toTest	<- c(1,	NA,	0,	1,	0,	1)
+ifelse(toTest	==	1,	toTest*3,	toTest)
+```
+
+## Compound Tests
+
+```{r}
+a		<- c(1,	1,	0,	1)
+b		<- c(1,	0,	0,	1)
+
+#	this	checks	each	element	of	a	and	each	element	of	b
+ifelse(a	==	1	&	b	==	1,	"Yes",	"No")
+
+#	this	only	checks	the	first	element	of	a	and	the	first	element	of	b
+#	it	only	returns	one	result
+ifelse(a	==	1	&&	b	==	1,	"Yes",	"No")
+
+
+```
+
+## For Loop
+
+```{r}
+#	build	a	vector	holding	fruit	names
+fruit		<- c("apple",	"banana",	"pomegranate")
+
+for(a	in	fruit)
+{
+  print(sprintf("Length of %s is %s",a,as.character(nchar(a))))
+}
+	
+```
+
+```{r}
+nchar(fruit)
+```
+
+
+## While loop
+
+```{r}
+x		<- 1
+while(x	<=	5)
+{
+  print(x)
+  x	<-	x	+	1
+}
+```
+
+## Controlling Loops
+
+```{r}
+for(i	in 1:10)
+{
+  if(i	==	3)
+  {
+    next
+  }
+  print(i)
+}
+
+```
+
+```{r}
+for(i	in 1:10)
+{
+  if(i	==	3)
+  {
+    break
+  }
+  print(i)
+}
+```
+

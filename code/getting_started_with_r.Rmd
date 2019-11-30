@@ -1,0 +1,180 @@
+---
+title: "getting_started_with_r"
+author: "Vivekanandan Srinivasan"
+date: "11/25/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+(4	*	6)	+	5
+
+```
+
+
+## Numeric Data types
+
+```{r}
+x <- 5
+class(x)
+```
+
+```{r}
+is.numeric(x)
+```
+
+```{r}
+i <- 5L
+is.integer(i)
+```
+
+## Character Data Type
+
+```{r}
+x <- "data"
+y <-  factor("data")
+x
+y
+```
+
+```{r}
+nchar(x)
+```
+
+```{r}
+nchar(y)
+```
+
+## Date Types
+
+```{r}
+date1 <- as.Date("2012-06-28")
+date1
+```
+
+```{r}
+date2 <- as.POSIXct("2012-06-28 17:42")
+date2
+```
+
+```{r}
+as.numeric(as.Date("1969-12-30"))
+```
+
+## Logical Type
+
+```{r}
+k <- TRUE
+class(k)
+is.logical(k)
+```
+
+## Vector Operation
+
+```{r}
+x <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+x*3
+```
+
+```{r}
+x <- 1:10
+y <- -5:4
+
+## Add them
+x+y
+```
+
+## Adding Vectors of unequal length
+
+```{r}
+x + c(1, 2)
+x + c(1, 2, 3)
+```
+
+```{r}
+x	<=	5
+```
+
+## any vs all 
+
+```{r}
+x <- 10:1
+y <- -4:5
+
+## Checking any and all
+any(x < y)
+all(x < y)
+```
+
+## Acessing Vector
+
+```{r}
+x[c(1, 4)]
+```
+
+
+## Creating vector with names
+
+
+```{r}
+c(One="a", Two="y", Last="r")
+```
+
+## Creating factor vectors
+
+```{r}
+q2 <- c("Hockey", "Lacrosse", "Hockey", "Water Polo", "Hockey", "Lacrosse")
+q2Factor <- as.factor(q2)
+q2Factor
+```
+
+```{r}
+as.numeric(q2Factor)
+```
+
+
+## Creating Ordered Factors
+
+```{r}
+factor(x=c("High School", "College", "Masters", "Doctorate"), levels=c("High School", "College", "Masters", "Doctorate"), ordered=TRUE)
+```
+
+## Missing Data - NA
+
+```{r}
+z <- c(1, 2, NA, 8, 3, NA, 3)
+is.na(z)
+```
+
+## Missing Data -  NULL
+
+```{r}
+z <- c(1, NULL,3)
+length(z)
+z
+```
+
+```{r}
+is.null(z)
+```
+
+## Pipes
+
+```{r}
+library(magrittr)
+x <- 1:10
+x %>% mean
+```
+
+```{r}
+z <- c(1, 2, NA, 8, 3, NA, 3) 
+sum(is.na(z))
+## Using Pipes
+z %>% is.na %>% sum
+```
+
+

@@ -1,0 +1,137 @@
+---
+title: "Statistical Visualization In R"
+author: "Vivekanandan Srinivasan"
+date: "9/27/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Reading in diamond dataset from ggplot2
+
+```{r}
+require(ggplot2)
+data(diamonds)
+head(diamonds)
+```
+
+## Histogram using base graphics
+
+```{r}
+hist(diamonds$carat, main="Carat Histogram", xlab="Carat")
+```
+
+## Scatterplot with base graphics
+
+```{r}
+plot(price ~ carat, data = diamonds)
+```
+
+## Scatterplot without using formula
+
+```{r}
+plot(diamonds$carat, diamonds$price)
+```
+
+## Boxplots with base graphics
+
+```{r}
+boxplot(diamonds$carat)
+```
+
+## Histogram using ggplot2
+
+```{r}
+ggplot(data = diamonds) + geom_histogram(aes(x=carat)) 
+```
+
+## Density plot using ggplot2
+
+
+```{r}
+ggplot(data=diamonds) + geom_density(aes(x=carat) , fill = "grey50")
+```
+
+## Scatterplot using ggplot2
+
+```{r}
+g <- ggplot(diamonds, aes(x=carat,y=price))
+g + geom_point(aes(color=color))
+```
+
+## Facet_wrap and facet_grid in ggplot2
+
+```{r}
+g + geom_point(aes(color=color)) + facet_wrap(~color)
+```
+
+```{r}
+g + geom_point(aes(color=color)) + facet_grid(cut~clarity)
+```
+
+## Boxplot using ggplot2
+
+```{r}
+ggplot(diamonds,aes(y=carat,x=1)) + geom_boxplot()
+```
+
+```{r}
+ggplot(diamonds,aes(y=carat,x=cut)) + geom_boxplot()
+```
+
+## Violin Plots using ggplot2
+
+```{r}
+require(gridExtra)
+p1 <- ggplot(diamonds,aes(y=carat,x=cut)) + geom_point() + geom_violin()
+p2 <- ggplot(diamonds,aes(y=carat,x=cut)) + geom_violin() + geom_point()
+grid.arrange(p1, p2, ncol=2)
+```
+
+## Line plots using ggplot2
+
+```{r}
+data(economics)
+head(economics)
+```
+
+```{r}
+ggplot(economics, aes(x=date,y=pop)) + geom_line()
+```
+
+## Preparing data for multiple line charts
+
+```{r}
+require(lubridate)
+## Create month and year columns
+economics$year <- year(economics$date)
+economics$month <- month(economics$date)
+## Subset the data
+econ2000 <- economics[which(economics$year>=2000),]
+head(econ2000)
+```
+
+```{r}
+g <- ggplot(econ2000,aes(x=month,y=pop))
+g <- g + geom_line(aes(color=factor(year), group=year))
+g <- g + scale_color_discrete(name="Year")
+g <- g + labs(title="Population Growth", x="Month",y="Population")
+g
+```
+
+## Theme in ggplot2
+
+```{r}
+require(ggthemes)
+g2 <- ggplot(diamonds, aes(x=carat,y=price)) + geom_point(aes(color=color))
+
+## Lets apply few themes
+p1 <- g2 + theme_economist() + scale_color_economist()
+p2 <- g2 + theme_excel() + scale_color_excel()
+p3 <- g2 + theme_tufte()
+p4 <- g2 + theme_wsj()
+grid.arrange(p1, p2, p3, p4, nrow=2, ncol=2)
+```
+

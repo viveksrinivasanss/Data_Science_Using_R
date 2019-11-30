@@ -1,0 +1,129 @@
+---
+title: "Writing Functions in R"
+author: "Vivekanandan Srinivasan"
+date: "11/27/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Creating hello world function
+
+```{r cars}
+say.hello <- function()
+	{
+	 print("Hello,	World!")
+	}
+
+say.hello()
+```
+
+## Sprintf
+
+```{r}
+sprintf("Hello %s, today is %s", "Jared", "Sunday")
+```
+
+## Creating R function with arguments
+
+```{r}
+hello.person <- function(name)
+{
+  print(sprintf("Hello %s",	name))
+}
+  
+hello.person("vivek")
+
+
+```
+
+```{r}
+hello.person	<- function(first,	last)
+  {
+    print(sprintf("Hello %s %s",	first,	last))
+  }
+
+hello.person("vivek","srinivasan")
+```
+
+## Creating function with default arguments
+
+```{r}
+hello.person <- function(first,	last="Srinivasan")
+  {
+    print(sprintf("Hello %s %s",	first,	last))
+  }
+
+#	call	without	specifying	last
+hello.person("Vivek")
+
+```
+
+## Calling with extra arguments
+
+```{r}
+# call hello.person with an extra argument 
+hello.person("Jared", extra="Goodbye")
+```
+
+```{r}
+hello.person <- function(first,	last="Srinivasan",...)
+{
+  print(sprintf("Hello %s %s and %s",	first,last,...))
+}
+
+#	call	hello.person	with	an	extra	argument
+hello.person	("Vivek",	extra="Goodbye")
+
+```
+
+## Return Call In Functions
+
+```{r}
+#	first	build	it	without	an	explicit	return
+double.num	<- function(x)
+{
+  x	*	2
+}
+double.num(5)
+
+```
+
+
+```{r}
+#	build	it	again,	this	time	with	another	argument	after	the	explicit	return
+double.num		<- function(x)
+{
+  return(x	*	2)
+  #	below	here	is	not	executed	because	the	function	already	exited
+  print("Hello!")
+  return(17)
+}
+
+double.num(5)
+
+```
+
+## do.call
+
+```{r}
+do.call("hello.person",	args=list(first="Jared",	last="Lander",extra="GoodBye"))
+
+```
+
+```{r}
+run.this  <- function(x, func=mean)
+{
+  do.call(func, args=list(x))
+}
+## calling the run.this with vector and function
+run.this(c(1,2,3,4),mean)
+run.this(c(1,2,3,4),sum)
+```
+
+```{r}
+run.this(c(1,2,3,4),sum)
+```
+

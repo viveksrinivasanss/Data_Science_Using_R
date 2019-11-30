@@ -1,0 +1,285 @@
+---
+title: "Reading Data Into R"
+author: "Vivekanandan Srinivasan"
+date: "9/21/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Reading in tomato data from url
+
+```{r }
+url <- "http://www.jaredlander.com/data/Tomato%20First.csv"
+tomato <- read.table(file = url, header = TRUE, sep = ",")
+head(tomato)
+dim(tomato)
+```
+
+## Reading CSV using readr library
+
+```{r}
+library(readr)
+theUrl	<- "http://www.jaredlander.com/data/TomatoFirst.csv"
+tomato2	<-read_delim(file=theUrl,	delim=',')
+
+```
+
+```{r}
+tomato2
+```
+
+## Reading csv using fread from data.table
+
+```{r}
+library(data.table)
+theUrl	<- "http://www.jaredlander.com/data/TomatoFirst.csv"
+tomato3	<-fread(input=theUrl,	sep=',',	header=TRUE)
+
+```
+
+
+## Reading from Excel
+
+```{r}
+
+download.file(url='http://www.jaredlander.com/data/ExcelExample.xlsx',destfile='../data/ExcelExample.xlsx')
+```
+
+```{r}
+library(readxl)
+excel_sheets('../data/ExcelExample.xlsx')
+
+```
+
+## Reading specific sheet from Excel
+
+```{r}
+wineXL1	<- read_excel('../data/ExcelExample.xlsx',	sheet=2)
+head(wineXL1)
+
+```
+
+
+## Reading from databases
+
+```{r}
+download.file("http://www.jaredlander.com/data/diamonds.db",destfile	=	"../data/diamonds.db",	mode='wb')
+```
+
+## Example Using RSQlite
+
+```{r}
+library(RSQLite)
+```
+
+## Specifying Driver
+
+```{r}
+drv	<- dbDriver('SQLite')
+class(drv)
+```
+
+## Establishing database connection
+
+```{r}
+con	<- dbConnect(drv,	'../data/diamonds.db')
+class(con)
+```
+
+## Listing tables
+
+```{r}
+dbListTables(con)
+dbListFields(con,	name='diamonds')
+```
+
+```{r}
+
+```
+
+## DBQuery
+
+```{r}
+longQuery	<- "SELECT	*	FROM	diamonds,	DiamondColors WHERE diamonds.color	=	DiamondColors.Color"
+diamondsJoin	<-dbGetQuery(con,	longQuery,stringsAsFactors=FALSE)
+head(diamondsJoin)
+
+```
+
+
+
+## Example Using RODBC
+
+```{r}
+require(RODBC)
+# Create a connection to the database called "db"
+db <- odbcConnect("DATABASE", uid="USERNAME", pwd="PASSWORD", believeNRows=FALSE)
+# Check that connection is working (Optional)
+odbcGetInfo(db)
+```
+
+## Running simple query in database
+
+```{r}
+# Simple SELECT * query from one table
+ordersTable <- sqlQuery(db, "SELECT * FROM Orders", stringAsFactors=FALSE)
+head(OrderTable)
+```
+
+
+## Joining Two Tables 
+
+```{r}
+# Do join between the two tables
+query <- "SELECT * FROM Orders, [Order Details] where Orders.OrderID=[Order Details].OrderID
+detailsJoin <- sqlQuery(db, query, stringAsFactors=FALSE)
+```
+
+## Saving R object to Rdata format
+
+
+
+```{r}
+save(tomato,file="tomato.rdata")
+rm(tomato)
+```
+
+## Checking the deleted R object
+
+```{r}
+head(tomato)
+```
+
+## Reloading tomato data from Rdata
+
+```{r}
+load("tomato.rdata")
+# Check if it exist now
+head(tomato)
+```
+
+
+## Creating Multiple Data
+
+```{r}
+n <- 20
+r <- 1:10
+w <- data.frame(n,r)
+head(w)
+```
+
+```{r}
+save(n,r,w, file="multiple.rdata")
+# delete them
+rm(n,r,w)
+
+```
+
+```{r}
+head(w)
+```
+
+
+```{r}
+# now load them back from rdata
+load("multiple.rdata")
+n
+r
+```
+
+## Loading data included with R ggplot2
+
+
+```{r}
+require(ggplot2)
+data(diamonds)
+head(diamonds)
+```
+
+## List of all data available in ggplot2 package
+
+```{r}
+data()
+```
+
+## Scraping table from online resource
+
+```{r}
+library(XML)
+url <- "http://www.jaredlander.com/2012/02/another-kind-of-super-bowl-pool/"
+bowlPool <- readHTMLTable(url, which=1, header=FALSE, stringAsFactors=FALSE)
+bowlPool
+```
+
+```{r}
+library(rvest)
+ribalta	<- read_html('http://www.jaredlander.com/data/ribalta.html')
+class(ribalta)
+ribalta
+
+```
+
+
+```{r}
+ribalta	%>%	html_nodes('.street')	%>%	html_text()
+
+```
+
+```{r}
+ribalta	%>%
+  html_nodes('table.food-items')	%>%
+  magrittr::extract2(5)	%>%
+  html_table()
+```
+
+
+## Installing aws.s3 package
+
+```{r}
+# latest stable version
+install.packages('aws.s3', repos = c('cloudyr' = 'http://cloudyr.github.io/drat'))
+
+# on windows you may need:
+#install.packages('aws.s3', repos = c('cloudyr' ='http://cloudyr.github.io/drat'), INSTALL_opts = '--no-multiarch')
+```
+
+## Accessing s3 bucket
+
+```{r}
+Sys.setenv('AWS_ACCESS_KEY_ID' = '',
+           'AWS_SECRET_ACCESS_KEY' = '',
+           'AWS_DEFAULT_REGION' = 'us-west-2')
+
+library('aws.s3')
+#bucketlist()
+# To get listing of all objects in a public bucket
+files <- get_bucket(bucket = 'spark-contents')
+files
+```
+
+## Commonly used function to read and write objects in S3 
+
+```{r}
+# save an in-memory R object into S3
+s3save(mtcars, bucket = 'my_bucket', object = 'mtcars.Rdata')
+
+# `load()` R objects from the file
+s3load('mtcars.Rdata', bucket = 'my_bucket')
+
+# get file as raw vector
+get_object('mtcars.Rdata', bucket = 'my_bucket')
+# alternative 'S3 URI' syntax:
+get_object('s3://my_bucket/mtcars.Rdata')
+
+# save file locally
+save_object('mtcars.Rdata', file = 'mtcars.Rdata', bucket = 'my_bucket')
+
+# put local file into S3
+put_object(file = 'mtcars.Rdata', object = 'mtcars2.Rdata', bucket = 'my_bucket')
+```
+
+
+

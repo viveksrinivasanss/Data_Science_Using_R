@@ -1,0 +1,152 @@
+---
+title: "Advanced_Statistics_Using_R"
+author: "Vivekanandan Srinivasan"
+date: "11/23/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Loading tips data from ggplot2
+
+```{r}
+data(tips,package="reshape2")
+head(tips)
+#dim(tips)
+```
+
+## One sample t-test
+
+```{r}
+t.test(tips$tip,	alternative="two.sided",	mu=2.50)
+
+```
+
+
+
+
+```{r}
+##	build	a	t	distribution
+randT	<- rt(30000,	df=NROW(tips)-1)
+
+#	get	t-statistic	and	other	information
+tipTTest	<- t.test(tips$tip,	alternative="two.sided",	mu=2.50)
+
+## Plot it
+library(ggplot2)
+ggplot(data.frame(x=randT))	+
+					geom_density(aes(x=x),	fill="grey",	color="grey")	+
+					geom_vline(xintercept=tipTTest$statistic)	+
+					geom_vline(xintercept=mean(randT)	+	c(-2,	2)*sd(randT),	linetype=2)
+
+```
+
+## One sided t-test
+
+```{r}
+t.test(tips$tip,	alternative="greater",	mu=2.50)
+
+```
+
+## Shapiro test for normality
+
+```{r}
+shapiro.test(tips$tip)
+
+```
+
+```{r}
+shapiro.test(tips$tip[tips$sex	==	"Female"])
+
+```
+
+```{r}
+shapiro.test(tips$tip[tips$sex	==	"Male"])
+```
+
+## Visual test of normality
+
+```{r}
+#	all	the	tests	fail	so	inspect	visually
+ggplot(tips,	aes(x=tip,	fill=sex))	+ geom_histogram(binwidth=.5,	alpha=1/2)
+```
+
+## Ansari-Bradley test for variances
+
+```{r}
+ansari.test(tip	~	sex,	tips)
+
+```
+
+## Two sample t-test
+
+```{r}
+t.test(tip	~	sex,	data=tips,	var.equal=TRUE)
+
+```
+
+## Reshaping tips data
+
+```{r}
+library(plyr)
+tipSummary	<- ddply(tips,	"sex",	summarize,
+										tip.mean=mean(tip),	tip.sd=sd(tip),
+										Lower=tip.mean	-	2*tip.sd/sqrt(NROW(tip)),
+										Upper=tip.mean	+	2*tip.sd/sqrt(NROW(tip)))
+tipSummary
+```
+
+## Visualising confidence intervals
+
+```{r}
+ggplot(tipSummary, aes(x=tip.mean, y=sex)) + geom_point() + geom_errorbarh(aes(xmin=Lower, xmax=Upper), height=.2)
+```
+
+## Two- paired t-test
+
+```{r}
+data(father.son,	package='UsingR')
+head(father.son)
+
+```
+
+```{r}
+t.test(father.son$fheight,	father.son$sheight,	paired=TRUE)
+```
+
+## Visually testing paired two sample t-test
+
+```{r}
+heightDiff	<-	father.son$fheight	-	father.son$sheight
+ggplot(father.son,	aes(x=fheight	-	sheight))	+
+				geom_density()	+
+				geom_vline(xintercept=mean(heightDiff))	+
+				geom_vline(xintercept=mean(heightDiff)	+ 2*c(-1,	1)*sd(heightDiff)/sqrt(nrow(father.son)),linetype=2)
+```
+
+## ANOVA
+
+```{r}
+tipAnova	<- aov(tip	~	day	-	1,	tips)
+summary(tipAnova)
+
+```
+
+## Visual Inspection of ANOVA
+
+```{r}
+tipsByDay	<- ddply(tips,	"day",	plyr::summarize,
+																				tip.mean=mean(tip),	tip.sd=sd(tip),
+																				Length=NROW(tip),
+																				tfrac=qt(p=.90,	df=Length-1),
+																				Lower=tip.mean	-	tfrac*tip.sd/sqrt(Length),
+																				Upper=tip.mean	+	tfrac*tip.sd/sqrt(Length)
+																				)
+
+ggplot(tipsByDay,	aes(x=tip.mean,	y=day))	+	geom_point()	+
+					geom_errorbarh(aes(xmin=Lower,	xmax=Upper),	height=.3)
+
+```
+

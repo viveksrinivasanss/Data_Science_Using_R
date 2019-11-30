@@ -1,0 +1,146 @@
+---
+title: "Basic Statistics Using R - 5"
+author: "Vivekanandan Srinivasan"
+date: "11/12/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Creating sample numbers between 1 and 100
+
+```{r}
+x <- sample(1:100, size = 100, replace = TRUE)
+x
+```
+
+## Calculating mean
+
+```{r}
+mean(x)
+```
+
+##  Including NA values
+
+```{r}
+# copy x
+y <- x
+# randomly setting 20 values to NA
+y[sample(1:100, size=20, replace=TRUE)] <- NA
+y
+```
+
+## Mean with NA's
+
+```{r}
+mean(y, na.rm=TRUE)
+```
+
+## Calculating weighted mean
+
+```{r}
+grades <-  c(95,72,87,66)
+weights <- c(1/2, 1/4, 1/8, 1/8)
+weighted.mean(x=grades, w=weights)
+```
+
+## Variance and SD
+
+```{r}
+var(x)
+```
+
+```{r}
+sd(y, na.rm=TRUE)
+```
+
+## Summary statistics
+
+```{r}
+min(x)
+max(x)
+median(x)
+```
+
+```{r}
+summary(y)
+```
+
+```{r}
+quantile(x,probs= c(0.1, 0.25, 0.5, 0.75, 0.99))
+```
+
+## Correlation and Covariance
+
+```{r}
+require(ggplot2)
+head(economics)
+```
+
+```{r}
+cor(economics$pce, economics$psavert)
+```
+
+## Correlation on a matrix
+
+```{r}
+cor(economics[,c(2,4:6)])
+```
+
+## Construction ggpairs
+
+```{r}
+GGally::ggpairs(economics[,c(2,4:6)])
+```
+
+## Converting wide to long format
+
+```{r}
+require(reshape2)
+require(scales)
+econCor <- cor(economics[,c(2,4:6)])
+## Converting to long format
+econMelt <- melt(econCor,varnames=c("x","y"),value.name="Correlation")
+econMelt
+```
+
+## Heatmap
+
+```{r}
+ggplot(econMelt,aes(x=x,y=y)) + 
+    geom_tile(aes(fill=Correlation)) +
+    scale_fill_gradient2(
+        low=muted("red"),
+        mid="white",                      
+        high="steelblue",
+        guide=guide_colorbar(ticks=FALSE,barheight=10),
+        limits=c(-1,1)) + 
+    theme_minimal() + 
+    labs(x=NULL,y=NULL)
+```
+
+## Loading tips package
+
+```{r}
+data(tips,package="reshape2")
+head(tips)
+```
+
+```{r}
+GGally::ggpairs(tips)
+```
+
+
+```{r}
+require(RXKCD)
+getXKCD(which="552")
+```
+
+## Covariance
+
+```{r}
+cov(economics$pce,economics$psavert)
+```
+

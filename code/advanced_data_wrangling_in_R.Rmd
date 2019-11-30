@@ -1,0 +1,65 @@
+---
+title: "advance_data_wrangling_in_R"
+author: "Vivekanandan Srinivasan"
+date: "10/15/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Creating dataframe
+
+```{r cars}
+require(data.table)
+## Create a regular data.frame
+
+theDf <- data.frame(A=1:10,B=letters[1:10],C=LETTERS[1:10],D=rep(c("One","Two","Three"),length.out=10))
+
+## Create a data.table
+
+theDt = data.table(A=1:10,B=letters[1:10],C=LETTERS[1:10],D=rep(c("One","Two","Three"),length.out=10))
+
+theDt
+```
+
+## Difference in dealing characters
+
+```{r}
+class(theDf$B)
+class(theDt$B)
+```
+
+## data.table out of existing data.frame
+
+```{r}
+require(ggplot2)
+diamondsDT <- data.table(diamonds)
+diamondsDT
+```
+
+## Accessing rows
+
+```{r}
+theDt[1:2,]
+```
+
+## Filter rows based on some condition
+
+```{r}
+theDt[theDt$A >=7,]
+```
+
+## Accessing Columns
+
+```{r}
+theDt[,list(A,C)]
+```
+
+## Accessing columns as characters
+
+```{r}
+theDt[,c("A","C"),with=FALSE]
+```
+

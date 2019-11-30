@@ -1,0 +1,94 @@
+---
+title: "Group Manipulation In R"
+author: "Vivekanandan Srinivasan"
+date: "10/3/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## apply - row sum
+
+```{r cars}
+theMatrix <- matrix(1:9, nrow=3)
+
+apply(theMatrix,1,sum)
+```
+
+## apply - column sum
+
+```{r}
+apply(theMatrix,2,sum)
+```
+
+## apply - row sum with missing values
+
+```{r}
+theMatrix[2,1] <- NA
+apply(theMatrix,1,sum)
+```
+
+```{r}
+apply(theMatrix,1,sum,na.rm=TRUE)
+```
+
+##lapply - sum operation
+
+```{r}
+theList <- list(A=matrix(1:9,3), B=1:5,C=matrix(1:4,2), D=2)
+lapply(theList,sum)
+```
+
+## sapply -  sum operation
+
+```{r}
+sapply(theList,sum)
+```
+
+```{r}
+theNames <- c("Jared","Deb","Paul")
+sapply(theNames,nchar)
+```
+
+## mapply
+
+```{r}
+## build two lists
+firstList <- list(A=matrix(1:16,4),B=matrix(1:16,2),c(1:5))
+secondList <- list(A=matrix(1:16,4),B=matrix(1:16,8),c(15:1))
+
+## test element by element if they are identical
+mapply(identical,firstList,secondList)
+```
+
+```{r}
+simpleFunc <- function(x,y) {
+              NROW(x) + NROW(y)
+              }
+mapply(simpleFunc,firstList,secondList)
+```
+
+
+## aggregate
+
+```{r}
+require(ggplot2)
+data(diamonds)
+head(diamonds)
+```
+
+
+```{r}
+aggregate(price~cut, diamonds,mean)
+```
+
+```{r}
+aggregate(price~cut + color, diamonds,mean)
+```
+
+```{r}
+aggregate(cbind(price,carat)~ cut + color,diamonds,mean)
+```
+
