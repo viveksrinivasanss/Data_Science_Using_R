@@ -1,0 +1,118 @@
+---
+title: "simple_linear_regression_using_r"
+author: "Vivekanandan Srinivasan"
+date: "12/5/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+data(father.son,	package='UsingR')
+library(ggplot2)
+head(father.son)
+
+```
+
+## Plotting father and son data
+
+```{r}
+ggplot(father.son,	aes(x=fheight,	y=sheight))	+	geom_point()	+		geom_smooth(method="lm")	+	labs(x="Fathers",	y="Sons")
+
+```
+
+
+## Fitting Linear Regression
+
+```{r}
+heightsLM	<- lm(sheight	~	fheight,	data=father.son)
+heightsLM
+
+```
+
+## Summary of regression model
+
+```{r}
+summary(heightsLM)
+```
+
+## Anova Alternative
+## Loading tips data
+
+```{r}
+data(tips,	package="reshape2")
+head(tips)
+```
+
+
+## Fitting ANOVA model for tips data
+
+```{r}
+#	putting	-1	in	the	formula	indicates	that	the	intercept	should	not	be
+#	included	in	the	model;
+#	the	categorical	variable	day	is	automatically	setup	to	have	a
+#	coefficient	for	each	level
+tipsAnova	<- aov(tip	~	day	-	1,	data=tips)
+summary(tipsAnova)
+```
+
+## Fitting Regression Model
+
+```{r}
+tipsLM	<- lm(tip	~	day	-	1,	data=tips)
+summary(tipsLM)
+```
+
+## Calculating mean and CI manually
+
+```{r}
+#	first	calculate	the	means	and	CI	manually
+library(dplyr)
+tipsByDay	<-	tips	%>%
+  group_by(day)	%>%
+  dplyr::summarize(
+    tip.mean=mean(tip),	tip.sd=sd(tip),
+    Length=NROW(tip),
+    tfrac=qt(p=.90,	df=Length-1),
+    Lower=tip.mean	-	tfrac*tip.sd/sqrt(Length),
+    Upper=tip.mean	+	tfrac*tip.sd/sqrt(Length)
+  )
+tipsByDay
+```
+
+## Calculating mean and CI from linear model
+
+```{r}
+tipsCoef
+```
+
+
+```{r}
+tipsInfo	<- summary(tipsLM)
+tipsCoef	<- as.data.frame(tipsInfo$coefficients[,	1:2])
+tipsCoef	<- within(tipsCoef,	{
+  Lower	<-	Estimate	-	qt(p=0.90,	df=tipsInfo$df[2])	*	`Std. Error`
+  Upper	<-	Estimate	+	qt(p=0.90,	df=tipsInfo$df[2])	*	`Std. Error`
+  day	<- rownames(tipsCoef)
+})
+
+tipsCoef
+```
+
+
+```{r}
+#	plot	them	both
+ggplot(tipsByDay,	aes(x=tip.mean,	y=day))	+	geom_point()	+
+  geom_errorbarh(aes(xmin=Lower,	xmax=Upper),	height=.3)	+
+  ggtitle("Tips	by	day	calculated	manually")
+
+ggplot(tipsCoef,	aes(x=Estimate,	y=day))	+	geom_point()	+
+  geom_errorbarh(aes(xmin=Lower,	xmax=Upper),	height=.3)	+
+  ggtitle("Tips	by	day	calculated	from	regression	model")
+
+```
+
