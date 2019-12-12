@@ -1,0 +1,15 @@
+---
+title: "Multiple Linear Regression In R"
+author: "Vivekanandan Srinivasan"
+date: "12/11/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+summary(cars)
+```
+
