@@ -10,6 +10,110 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-summary(cars)
+housing	<- read.table("../data/housing.csv",
+                      sep	=	",",	header	=	TRUE,
+                      stringsAsFactors	=	FALSE)
+head(housing)
+```
+
+## Renaming Columns
+
+```{r}
+names(housing)	<- c("Neighborhood",	"Class",	"Units",	"YearBuilt",
+                    "SqFt",	"Income",	"IncomePerSqFt",	"Expense",
+                    "ExpensePerSqFt",	"NetIncome",	"Value",
+                    "ValuePerSqFt",	"Boro")
+head(housing)
+```
+
+## Visualizing response variable
+
+```{r}
+require(ggplot2)
+ggplot(housing,	aes(x=ValuePerSqFt))	+ geom_histogram(binwidth=10)	+	labs(x="Value	per	Square	Foot")
+```
+
+## Understanding the response variable for different Boro
+
+```{r}
+require(gridExtra)
+p1 <- ggplot(housing,	aes(x=ValuePerSqFt,	fill=Boro))	+ geom_histogram(binwidth=10)	+	
+        labs(x="Value	per	Square	Foot") + theme(axis.text.x = element_text(angle = 90))
+p2 <- ggplot(housing,	aes(x=ValuePerSqFt,	fill=Boro))	+ geom_histogram(binwidth=10)	+	
+        labs (x="Value	per	Square	Foot")	+      facet_wrap(~Boro) + theme(axis.text.x = element_text(angle = 90))
+grid.arrange(p1, p2, nrow = 1,widths=c(3, 5))
+```
+
+## Visualizing Predictor variables 
+
+```{r}
+p3 <- ggplot(housing,	aes(x=SqFt))	+	geom_histogram()
+p4 <- ggplot(housing,	aes(x=Units))	+	geom_histogram()
+grid.arrange(p3, p4, nrow = 1)
+
+```
+
+## Boxplots for predictor variable
+
+```{r}
+p5 <- ggplot(housing,	aes(y=SqFt,x=1))	+	geom_boxplot()
+p6 <- ggplot(housing,	aes(y=Units,x=1))	+	geom_boxplot()
+grid.arrange(p5, p6, nrow = 1)
+```
+
+## Finding Outlier Points
+
+```{r}
+housing[housing$Units	>	1000,	]
+
+```
+
+## Removing Outlier Points
+
+```{r}
+housing <- housing[housing$Units <   1000, ]
+```
+
+## Fitting Regression Model
+
+```{r}
+house1	<- lm(ValuePerSqFt	~	Units	+	SqFt	+	Boro,	data=housing)
+summary(house1)
+```
+
+## Getting Model Coefficients
+
+```{r}
+coef(house1)
+```
+
+## Plotting Coefficients
+
+```{r}
+library(coefplot)
+coefplot(house1)
+```
+
+## Fitting model with interaction terms
+
+```{r}
+house2	<- lm(ValuePerSqFt	~	Units	*	SqFt	+	Boro,	data=housing)
+house3	<- lm(ValuePerSqFt	~		Units	:	SqFt	+	Boro,	data=housing)
+multiplot(house1,	house2,	house3)
+```
+
+## Reading in test housing dataset
+
+```{r}
+housingNew	<- read.table("../data/housingNew.csv", sep=",",	header=TRUE,	stringsAsFactors=FALSE)
+head(housingNew)
+```
+
+## Predicting using our regression model
+
+```{r}
+housePredict	<- predict(house1,	newdata=housingNew,	se.fit=TRUE,interval="prediction",	level=.95)
+#view	predictions	with	upper	and	lower	bounds	based	on	standard	errors
+head(housePredict$fit)
 ```
 

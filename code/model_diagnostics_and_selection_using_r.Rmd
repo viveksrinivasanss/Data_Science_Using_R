@@ -1,0 +1,168 @@
+---
+title: "Model Diagnostics and Selection"
+author: "Vivekanandan Srinivasan"
+date: "12/12/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Building Regression Model
+
+```{r}
+housing	<- read.table("../data/housing.csv",sep	=	",",	header	=	TRUE,stringsAsFactors	=	FALSE)
+names(housing)	<- c("Neighborhood",	"Class",	"Units",	"YearBuilt","SqFt",	"Income",	"IncomePerSqFt",	"Expense",
+                    "ExpensePerSqFt",	"NetIncome",	"Value","ValuePerSqFt",	"Boro")
+housing <- housing[housing$Units <   1000, ]
+house1	<- lm(ValuePerSqFt	~	Units	+	SqFt	+	Boro,	data=housing)
+summary(house1)
+
+```
+
+## Visualizing Coefficient Values
+
+```{r}
+library(coefplot)
+coefplot(house1)
+```
+
+
+
+```{r}
+library(ggplot2)
+#	see	what	a	fortified	lm	model	looks	like
+head(fortify(house1))
+```
+
+
+## Constructing Residual Plots
+
+```{r}
+ggplot(aes(x=.fitted,	y=.resid),	data	=	house1)	+
+  geom_point()	+
+  geom_hline(yintercept	=	0)	+
+  geom_smooth(se	=	FALSE)	+
+  labs(x="Fitted	Values",	y="Residuals")
+```
+
+## Residual plot with boro separated
+
+```{r}
+ggplot(aes(x=.fitted,	y=.resid),	data	=	house1)	+
+  geom_point()	+
+  geom_hline(yintercept	=	0)	+
+  geom_smooth(se	=	FALSE)	+
+  labs(x="Fitted	Values",	y="Residuals") +
+  geom_point(aes(color=Boro))
+```
+
+## Q-Q Plot
+
+```{r}
+ggplot(house1,	aes(sample=.stdresid))	+	stat_qq()	+	geom_abline()
+```
+
+
+## Histogram of residuals
+
+```{r}
+ggplot(house1,	aes(x=.resid))	+	geom_histogram()
+```
+
+## Fitting different models on housing data
+
+```{r}
+house2	<- lm(ValuePerSqFt	~	Units	*	SqFt	+	Boro,	data=housing)
+house3	<- lm(ValuePerSqFt	~	Units	+	SqFt	*	Boro	+	Class,data=housing)
+house4	<- lm(ValuePerSqFt	~	Units	+	SqFt	*	Boro	+	SqFt*Class,data=housing)
+house5	<- lm(ValuePerSqFt	~	Boro	+	Class,	data=housing)
+```
+
+##  Building coef plots for multiple models
+
+```{r}
+multiplot(house1,	house2,	house3,	house4,	house5,	pointSize=2)
+```
+
+## Finding Best Model using ANOVA
+
+```{r}
+anova(house1,	house2,	house3,	house4,	house5)
+
+```
+
+## Model Selection Using AIC and BIC
+
+```{r}
+AIC(house1, house2, house3, house4, house5)
+BIC(house1, house2, house3, house4, house5)
+```
+
+
+## Model selection using cross validation
+
+```{r}
+library(boot)
+#refit	house1	using	glm	instead	of	lm
+houseG1	<- glm(ValuePerSqFt	~	Units	+	SqFt	+	Boro,data=housing,	family=gaussian(link="identity"))
+
+#	ensure	it	gives	the	same	results	as	lm
+identical(coef(house1),	coef(houseG1))
+```
+
+```{r}
+houseCV1	<- cv.glm(housing,	houseG1,	K=5)
+houseCV1$delta
+
+
+```
+
+## Building and cross validating multiple models
+
+```{r}
+houseG2	<- glm(ValuePerSqFt	~	Units	*	SqFt	+	Boro,	data=housing)
+houseG3	<- glm(ValuePerSqFt	~	Units	+	SqFt	*	Boro	+	Class,data=housing)
+houseG4	<- glm(ValuePerSqFt	~	Units	+	SqFt	*	Boro	+	SqFt*Class,data=housing)
+houseG5	<- glm(ValuePerSqFt	~	Boro	+	Class,	data=housing)
+
+#	run	cross-validation
+houseCV2	<- cv.glm(housing,	houseG2,	K=5)
+houseCV3	<- cv.glm(housing,	houseG3,	K=5)
+houseCV4	<- cv.glm(housing,	houseG4,	K=5)
+houseCV5	<- cv.glm(housing,	houseG5,	K=5)
+
+## Creating a dataframe of model Error values and adding model	name
+cvResults	<- as.data.frame(rbind(houseCV1$delta,	houseCV2$delta,	houseCV3$delta,	houseCV4$delta,houseCV5$delta))
+names(cvResults)	<- c("Error",	"Adjusted.Error")
+cvResults$Model	<- sprintf("houseG%s",	1:5)
+
+cvResults
+```
+
+
+## Visualizing model selection methods
+
+```{r}
+# measure with ANOVA
+cvANOVA	<-anova(houseG1,	houseG2,	houseG3,	houseG4,	houseG5)
+cvResults$ANOVA	<-	cvANOVA$`Resid. Dev`
+
+#	measure	with	AIC
+cvResults$AIC	<- AIC(houseG1,	houseG2,	houseG3,	houseG4,	houseG5)$AIC
+
+#	make	the	data.frame	suitable	for	plotting
+library(reshape2)
+cvMelt	<- melt(cvResults,	id.vars="Model",	variable.name="Measure",value.name="Value")
+
+# Plotting Results
+ggplot(cvMelt,	aes(x=Model,	y=Value))	+
+  geom_line(aes(group=Measure,	color=Measure))	+
+  facet_wrap(~Measure,	scales="free_y")	+
+  theme(axis.text.x=element_text(angle=90,	vjust=.5))	+
+  guides(color=FALSE)
+
+```
+
+
