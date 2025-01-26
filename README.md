@@ -11,4 +11,4 @@ The contents are inspired from couple of books which I got introduced during my 
 
 This series is for those who need quick introduction to statistics and machine learning using R. All codes and data used in the series are available in the repository.
 
-Hope it helps and happy learning !!!!!!!
+Hope it helps and happy learning !!!!!!!!!!
